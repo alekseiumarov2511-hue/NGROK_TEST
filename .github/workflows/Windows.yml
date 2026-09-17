@@ -16,12 +16,16 @@ jobs:
         run: |
           net user runneradmin P@ssw0rd!
 
-      - name: Install SSH
+      - name: Install Tailscale
         run: |
-          Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
-          Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+          Invoke-WebRequest -Uri "https://pkgs.tailscale.com/stable/tailscale-setup-latest.exe" -OutFile "tailscale.exe"
+          Start-Process -FilePath ".\tailscale.exe" -ArgumentList "/quiet" -Wait
+          & "C:\Program Files\Tailscale\tailscale.exe" up --authkey ${{ secrets.TAILSCALE_AUTH_KEY }} --hostname github-rdp
 
-      - name: Start Tunnel
+      - name: Get Tailscale IP
         run: |
-          ssh -o StrictHostKeyChecking=no -R 0:localhost:3389 nokey@localhost.run
-        timeout-minutes: 360
+          & "C:\Program Files\Tailscale\tailscale.exe" ip -4
+
+      - name: Keep Alive
+        run: |
+          Start-Sleep -Seconds 21600
