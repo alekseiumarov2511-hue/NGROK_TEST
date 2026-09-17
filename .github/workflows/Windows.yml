@@ -16,18 +16,12 @@ jobs:
         run: |
           net user runneradmin P@ssw0rd!
 
-      - name: Install Tailscale
+      - name: Download Playit
         run: |
-          Invoke-WebRequest -Uri "https://pkgs.tailscale.com/stable/tailscale-setup-latest.exe" -OutFile "tailscale.exe"
-          Start-Process -FilePath ".\tailscale.exe" -ArgumentList "/quiet" -Wait
-          Start-Sleep -Seconds 20
-          & "C:\Program Files\Tailscale\tailscale.exe" up --authkey ${{ secrets.TAILSCALE_AUTH_KEY }} --unattended
+          Invoke-WebRequest -Uri "https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-windows-x86_64.exe" -OutFile "playit.exe"
 
-      - name: Get Tailscale IP
+      - name: Start Playit
         run: |
-          Start-Sleep -Seconds 10
-          & "C:\Program Files\Tailscale\tailscale.exe" ip -4
-
-      - name: Keep Alive
-        run: |
-          Start-Sleep -Seconds 21600
+          Start-Process -FilePath ".\playit.exe" -ArgumentList "--secret ${{ secrets.PLAYIT_SECRET }}" -NoNewWindow
+          Start-Sleep -Seconds 30
+        timeout-minutes: 360
