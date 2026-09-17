@@ -16,12 +16,11 @@ jobs:
         run: |
           net user runneradmin P@ssw0rd!
 
-      - name: Download Playit
+      - name: Install SSH
         run: |
-          Invoke-WebRequest -Uri "https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-windows-x86_64.exe" -OutFile "playit.exe"
+          Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
 
-      - name: Start Playit
+      - name: Start Tunnel
         run: |
-          Start-Process -FilePath ".\playit.exe" -ArgumentList "--secret ${{ secrets.PLAYIT_SECRET }}" -NoNewWindow
-          Start-Sleep -Seconds 30
+          ssh -o StrictHostKeyChecking=no -R 3389:localhost:3389 serveo.net
         timeout-minutes: 360
